@@ -93,16 +93,14 @@
             <!-- لوحة التحكم الاحترافية العائمة -->
             <div class="absolute top-6 right-6 z-10 glass-panel p-5 rounded-2xl w-80 shadow-2xl border border-slate-700/50 max-h-full overflow-y-auto no-scrollbar">
                 <h3 class="text-xl font-black text-blue-400 mb-4 border-b border-slate-700 pb-2"><i class="fa-solid fa-microscope mr-2"></i> إعدادات التجربة</h3>
-                <!-- الحاوية الأساسية للقائمة -->
-<div class="absolute top-6 right-6 z-10 glass-panel p-4 md:p-5 rounded-2xl w-[90vw] md:w-80 max-h-[80vh] overflow-y-auto no-scrollbar shadow-2xl border border-slate-700/50">
+<!-- الحاوية الأساسية للقائمة -->
+<div id="settings-panel" class="absolute top-6 right-6 z-10 glass-panel p-4 md:p-5 rounded-2xl w-[90vw] md:w-80 max-h-[80vh] overflow-y-auto no-scrollbar shadow-2xl border border-slate-700/50">
     <h3 class="text-lg md:text-xl font-black text-blue-400 mb-4 border-b border-slate-700 pb-2 flex items-center">
         <i class="fa-solid fa-microscope mr-2"></i> إعدادات التجربة
     </h3>
+
     
-    <!-- استخدام Grid للتجاوب مع أحجام الشاشات -->
-    <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
-        
-        <!-- إعدادات المواد -->
+    <div class="grid grid-cols-1 gap-4">
         <div class="space-y-3">
             <div>
                 <label class="block text-[10px] md:text-xs font-bold text-slate-400 mb-1">حجم الدورق المخروطي</label>
@@ -114,7 +112,6 @@
             </div>
         </div>
 
-        <!-- مفتاح السحاحة (مصمم للمس) -->
         <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-800">
             <div class="flex justify-between items-center mb-2">
                 <label class="text-xs md:text-sm font-bold text-slate-300"><i class="fa-solid fa-faucet-drip mr-1 text-blue-400"></i> صمام السحاحة</label>
@@ -123,9 +120,8 @@
             <input type="range" id="flow-rate" min="0" max="100" value="0" class="w-full h-3 md:h-2 accent-blue-500">
         </div>
 
-        <!-- التحكم بالسخان والمقلب -->
         <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-800">
-            <div class="text-xs md:text-sm font-bold text-slate-300 mb-3 border-b border-slate-700 pb-2 flex justify-between">
+            <div class="text-xs md:text-sm font-bold text-slate-300 mb-3 border-b border-slate-700 pb-2">
                 <span><i class="fa-solid fa-fire-burner mr-1 text-orange-400"></i> السخان والمقلب</span>
             </div>
             
@@ -147,6 +143,33 @@
         </div>
     </div>
 </div>
+
+<script>
+    function initTitration3D() {
+        const elements = {
+            flowRate: document.getElementById('flow-rate'),
+            targetTemp: document.getElementById('target-temp'),
+            stirSpeed: document.getElementById('stir-speed')
+        };
+
+        // التحقق من وجود العناصر قبل ربط الأحداث لمنع خطأ Null
+        for (const [key, element] of Object.entries(elements)) {
+            if (element) {
+                element.addEventListener('input', (e) => {
+                    console.log(`Updated ${key}: ${e.target.value}`);
+                    // هنا يتم إضافة المنطق الخاص بك
+                });
+            } else {
+                console.warn(`Element ${key} not found in DOM`);
+            }
+        }
+    }
+
+    // تشغيل الإعداد بعد تحميل الصفحة بالكامل
+    document.addEventListener('DOMContentLoaded', () => {
+        initTitration3D();
+    });
+    
                 <!-- شاشات القراءة الرقمية (مع إضافة الحجم) -->
                 <div class="grid grid-cols-3 gap-2 pt-2">
                     <div class="bg-[#020617] p-2 rounded-xl border border-slate-700 text-center shadow-inner relative overflow-hidden">
