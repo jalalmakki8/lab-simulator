@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SciLab Pro - الواجهة الأساسية</title>
+    <!-- مكتبات التصميم والأيقونات -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- مكتبات الرسوميات 3D -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap');
+        body { background-color: #0f172a; color: white; font-family: 'Cairo', sans-serif; overflow-x: hidden; }
+        
+        /* تنسيقات الزجاج الأساسية */
+        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .neon-border { transition: all 0.3s ease; }
+        .neon-border:hover { transform: translateY(-5px); }
+        
+        /* إخفاء شريط التمرير */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* شريط التمرير (Slider) */
+        input[type=range] { -webkit-appearance: none; background: #334155; border-radius: 5px; height: 6px; outline: none; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #3b82f6; cursor: pointer; transition: 0.2s; border: 2px solid #fff;}
+        input[type=range]::-webkit-slider-thumb:hover { background: #60a5fa; transform: scale(1.2); }
+        
+        /* القوائم المنسدلة */
+        select { background-image: none !important; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- ================= الشريط العلوي العام ================= -->
+    <header class="p-4 border-b border-slate-800 glass-panel sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="enterLab('portal')">
+                <i class="fa-solid fa-flask-vial text-3xl text-blue-500"></i>
+                <h1 class="text-2xl font-black italic tracking-wider">SciLab <span class="text-blue-500">Pro</span></h1>
+            </div>
+
+            <nav id="top-nav" class="hidden flex-1 overflow-x-auto no-scrollbar mx-4 justify-center">
+                <div class="flex items-center gap-2" id="nav-buttons-container">
+                    <button class="bg-blue-600 text-white border-blue-500 px-4 py-2 rounded-lg font-bold text-sm"><i class="fa-solid fa-droplet mr-1"></i> المعايرة 3D</button>
+                </div>
+            </nav>
+
+            <div class="flex items-center gap-3">
+                <button onclick="enterLab('portal')" class="bg-slate-700 hover:bg-slate-600 px-4 py-2 rounded-lg font-bold transition flex items-center gap-2">
+                    <i class="fa-solid fa-house"></i> <span class="hidden md:inline">الرئيسية</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ================= مساحة العمل الرئيسية ================= -->
+    <main class="flex-1 w-full max-w-7xl mx-auto p-4 md:p-6 relative">
+        
+        <!-- البوابة الرئيسية (Portal) -->
+        <div id="portal-view" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-10">
+            <div onclick="enterLab('chem')" class="glass-panel p-6 rounded-3xl cursor-pointer neon-border group hover:shadow-[0_0_20px_rgba(59,130,246,0.4)]">
+                <div class="bg-blue-500/20 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition">
+                    <i class="fa-solid fa-flask text-3xl text-blue-400"></i>
+                </div>
+                <h2 class="text-2xl font-bold mb-3">مختبر الكيمياء</h2>
+                <p class="text-slate-400 text-sm">مساحة مخصصة للتجارب الكيميائية والمعايرة.</p>
+            </div>
+            
+            <div onclick="enterLab('phys')" class="glass-panel p-6 rounded-3xl cursor-pointer group hover:shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:-translate-y-1 transition-all duration-300">
+                <div class="bg-purple-500/20 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition"><i class="fa-solid fa-atom text-3xl text-purple-400"></i></div>
+                <h2 class="text-2xl font-bold mb-3">مختبر الفيزياء</h2><p class="text-slate-400 text-sm">الديناميكا والمقذوفات (قيد الإنشاء).</p>
+            </div>
+            
+            <div onclick="enterLab('bio')" class="glass-panel p-6 rounded-3xl cursor-pointer group hover:shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:-translate-y-1 transition-all duration-300">
+                <div class="bg-emerald-500/20 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition"><i class="fa-solid fa-dna text-3xl text-emerald-400"></i></div>
+                <h2 class="text-2xl font-bold mb-3">مختبر الأحياء</h2><p class="text-slate-400 text-sm">التشريح، الخلايا، وعلم الوراثة (قيد الإنشاء).</p>
+            </div>
+
+            <div onclick="enterLab('eng')" class="glass-panel p-6 rounded-3xl cursor-pointer group hover:shadow-[0_0_20px_rgba(249,115,22,0.4)] hover:-translate-y-1 transition-all duration-300">
+                <div class="bg-orange-500/20 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition"><i class="fa-solid fa-bridge text-3xl text-orange-400"></i></div>
+                <h2 class="text-2xl font-bold mb-3">مختبر الهندسة</h2><p class="text-slate-400 text-sm">تصميم وبناء الجسور (قيد الإنشاء).</p>
+            </div>
+        </div>
+
+        <!-- ================= مختبر الكيمياء (المعايرة 3D) ================= -->
+        <div id="chem-workspace" class="hidden h-[750px] relative">
+            
+            <!-- لوحة التحكم الاحترافية العائمة -->
+            <div class="absolute top-6 right-6 z-10 glass-panel p-5 rounded-2xl w-80 shadow-2xl border border-slate-700/50 max-h-full overflow-y-auto no-scrollbar">
+                <h3 class="text-xl font-black text-blue-400 mb-4 border-b border-slate-700 pb-2"><i class="fa-solid fa-microscope mr-2"></i> إعدادات التجربة</h3>
+                <!-- الحاوية الأساسية للقائمة -->
+<div class="absolute top-6 right-6 z-10 glass-panel p-4 md:p-5 rounded-2xl w-[90vw] md:w-80 max-h-[80vh] overflow-y-auto no-scrollbar shadow-2xl border border-slate-700/50">
+    <h3 class="text-lg md:text-xl font-black text-blue-400 mb-4 border-b border-slate-700 pb-2 flex items-center">
+        <i class="fa-solid fa-microscope mr-2"></i> إعدادات التجربة
+    </h3>
+    
+    <!-- استخدام Grid للتجاوب مع أحجام الشاشات -->
+    <div class="grid grid-cols-1 md:grid-cols-1 gap-4">
+        
+        <!-- إعدادات المواد -->
+        <div class="space-y-3">
+            <div>
+                <label class="block text-[10px] md:text-xs font-bold text-slate-400 mb-1">حجم الدورق المخروطي</label>
+                <select id="flask-size" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-xs md:text-sm text-slate-200 outline-none">
+                    <option value="1">250 مل (قياسي)</option>
+                    <option value="0.75">100 مل</option>
+                    <option value="0.5">50 مل</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- مفتاح السحاحة (مصمم للمس) -->
+        <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-800">
+            <div class="flex justify-between items-center mb-2">
+                <label class="text-xs md:text-sm font-bold text-slate-300"><i class="fa-solid fa-faucet-drip mr-1 text-blue-400"></i> صمام السحاحة</label>
+                <span id="flow-value" class="text-[10px] md:text-xs text-slate-400 font-mono">مغلق</span>
+            </div>
+            <input type="range" id="flow-rate" min="0" max="100" value="0" class="w-full h-3 md:h-2 accent-blue-500">
+        </div>
+
+        <!-- التحكم بالسخان والمقلب -->
+        <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-800">
+            <div class="text-xs md:text-sm font-bold text-slate-300 mb-3 border-b border-slate-700 pb-2 flex justify-between">
+                <span><i class="fa-solid fa-fire-burner mr-1 text-orange-400"></i> السخان والمقلب</span>
+            </div>
+            
+            <div class="mb-4">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-[10px] md:text-xs text-slate-400">الحرارة</span>
+                    <span id="target-temp-val" class="text-[10px] md:text-xs text-orange-400 font-mono">25°C</span>
+                </div>
+                <input type="range" id="target-temp" min="25" max="150" value="25" class="w-full h-3 md:h-2 accent-orange-500">
+            </div>
+            
+            <div>
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-[10px] md:text-xs text-slate-400">السرعة (RPM)</span>
+                    <span id="stir-val" class="text-[10px] md:text-xs text-emerald-400 font-mono">0 RPM</span>
+                </div>
+                <input type="range" id="stir-speed" min="0" max="100" value="0" class="w-full h-3 md:h-2 accent-emerald-500">
+            </div>
+        </div>
+    </div>
+</div>
+                <!-- شاشات القراءة الرقمية (مع إضافة الحجم) -->
+                <div class="grid grid-cols-3 gap-2 pt-2">
+                    <div class="bg-[#020617] p-2 rounded-xl border border-slate-700 text-center shadow-inner relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-emerald-500/50"></div>
+                        <div class="text-slate-500 text-[10px] mb-1 font-bold">pH</div>
+                        <div id="ph-display" class="font-mono text-lg text-emerald-400 font-bold">7.00</div>
+                    </div>
+                    <div class="bg-[#020617] p-2 rounded-xl border border-slate-700 text-center shadow-inner relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-orange-500/50"></div>
+                        <div class="text-slate-500 text-[10px] mb-1 font-bold">الحرارة °C</div>
+                        <div id="temp-display" class="font-mono text-lg text-orange-400 font-bold">25.0</div>
+                    </div>
+                    <div class="bg-[#020617] p-2 rounded-xl border border-slate-700 text-center shadow-inner relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-1 bg-blue-500/50"></div>
+                        <div class="text-slate-500 text-[10px] mb-1 font-bold">الحجم ml</div>
+                        <div id="vol-display" class="font-mono text-lg text-blue-400 font-bold">50.0</div>
+                    </div>
+                </div>
+                
+                <button onclick="resetExperiment()" class="w-full mt-4 bg-red-600/20 text-red-400 border border-red-900/50 hover:bg-red-600 hover:text-white py-2 rounded-lg text-sm font-bold transition">إعادة تعيين التجربة</button>
+            </div>
+
+            <!-- حاوية المشهد 3D -->
+            <div id="titration-canvas" class="w-full h-full rounded-2xl overflow-hidden bg-gradient-to-b from-slate-900 via-slate-800 to-[#020617] cursor-grab active:cursor-grabbing border border-slate-800 shadow-2xl relative">
+                <div class="absolute bottom-4 left-4 text-slate-400 text-sm bg-slate-900/80 px-4 py-2 rounded-lg backdrop-blur-md border border-slate-700">
+                    <i class="fa-solid fa-mouse text-blue-400"></i> حرك الماوس للدوران | ارفع الحرارة لترى الغليان والتبخر!
+                </div>
+                <!-- رسالة التحذير (مخفية افتراضياً) -->
+                <div id="warning-msg" class="hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-red-900/90 text-white px-8 py-4 rounded-2xl border-2 border-red-500 font-black text-xl shadow-[0_0_30px_rgba(239,68,68,0.8)] z-50 text-center backdrop-blur-md w-3/4 max-w-md pointer-events-none">
+                    ⚠️ تحذير: تم كسر الدورق!
+                    <div class="text-sm font-normal mt-2 text-red-200">الزجاج لا يتحمل الحرارة العالية بسبب التسخين الجاف بدون سائل يمتص الحرارة.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- باقي المختبرات -->
+        <div id="phys-workspace" class="hidden space-y-6"><div class="glass-panel p-10 text-center rounded-2xl"><h2 class="text-2xl font-bold text-slate-300">مختبر الفيزياء قيد التطوير...</h2></div></div>
+        <div id="bio-workspace" class="hidden space-y-6"><div class="glass-panel p-10 text-center rounded-2xl"><h2 class="text-2xl font-bold text-emerald-400 mb-2">مختبر الأحياء قيد التطوير...</h2></div></div>
+        <div id="eng-workspace" class="hidden space-y-6"><div class="glass-panel p-10 text-center rounded-2xl"><h2 class="text-2xl font-bold text-slate-300">مختبر الهندسة قيد التطوير...</h2></div></div>
+
+    </main>
+
+    <script>
+        window.enterLab = function(labId) {
+            document.getElementById('portal-view').classList.add('hidden');
+            ['chem', 'phys', 'bio', 'eng'].forEach(id => {
+                const workspace = document.getElementById(id + '-workspace');
+                if (workspace) workspace.classList.add('hidden');
+            });
+
+            const topNav = document.getElementById('top-nav');
+
+            if (labId === 'portal') {
+                document.getElementById('portal-view').classList.remove('hidden');
+                topNav.classList.add('hidden');
+            } else {
+                const targetWorkspace = document.getElementById(labId + '-workspace');
+                if (targetWorkspace) {
+                    targetWorkspace.classList.remove('hidden');
+                    topNav.classList.remove('hidden');
+                    
+                    if (labId === 'chem' && !window.chemInitialized) {
+                        initTitration3D();
+                        window.chemInitialized = true;
+                    }
+                }
+            }
+        };
+
+        // ================= محرك الواقعية الفائقة للمعايرة (Three.js) =================
+        let scene, camera, renderer, controls;
+        
+        let flaskGroup, flask, flaskLiquid, burette, stopcock, stirrerFlea, thermometer, thermoGroup;
+        let hotPlateKnobStir, hotPlateKnobHeat, hotPlateLight;
+        let drops = [];
+        let bubbles = []; 
+        let steamParticles = []; // نظام البخار المتصاعد
+        let shards = []; // شظايا الزجاج
+        let isShattered = false;
+        
+        // متغيرات الفيزياء
+        let flowRate = 0;
+        let stirSpeed = 0;
+        let targetTemp = 25.0;
+        let currentTemp = 25.0;
+        let flaskScale = 1.0;
+        let baseLiquidLevel = 0.5; // يمثل حوالي 50 مل
+        let currentLiquidLevel = 0.5; 
+        let currentPh = 7.00;
+        let currentIndicator = 'phph';
+
+        const indicatorsData = {
+            'phph': { acidColor: 0xffffff, baseColor: 0xec4899, transitionPh: 8.2 }, 
+            'bb':   { acidColor: 0xfacc15, baseColor: 0x3b82f6, transitionPh: 7.0 }, 
+            'mo':   { acidColor: 0xef4444, baseColor: 0xfacc15, transitionPh: 4.4 }  
+        };
+
+        function updateLiquidGeometry() {
+            let h = currentLiquidLevel;
+            if (h > 2.0) h = 2.0; 
+            
+            if (h <= 0.01) {
+                flaskLiquid.visible = false;
+                document.getElementById('vol-display').innerText = "0.0";
+                return;
+            } else {
+                flaskLiquid.visible = true;
+            }
+            
+            let rBottom = 1.55; 
+            let rTop = 1.55 - ((1.55 - 0.45) * (h / 2.05)); 
+            
+            const newGeom = new THREE.CylinderGeometry(rTop, rBottom, h, 64);
+            newGeom.translate(0, h / 2, 0); 
+            
+            if (flaskLiquid && flaskLiquid.geometry) flaskLiquid.geometry.dispose();
+            if (flaskLiquid) {
+                flaskLiquid.geometry = newGeom;
+                flaskLiquid.position.y = 0.15; 
+            }
+
+            // تحديث مؤشر الحجم في الواجهة
+            let volMl = (currentLiquidLevel * 100 * flaskScale).toFixed(1);
+            document.getElementById('vol-display').innerText = volMl;
+        }
+
+        // بناء تأثيرات الغليان والبخار
+        function initBoilingEffects() {
+            // فقاعات الغليان
+            const bubbleGeom = new THREE.SphereGeometry(0.04, 16, 16);
+            const bubbleMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, transmission: 0.9, roughness: 0, ior: 1.1, transparent: true, opacity: 0.8 });
+            for(let i=0; i<50; i++) {
+                let mesh = new THREE.Mesh(bubbleGeom, bubbleMat);
+                mesh.visible = false; 
+                flaskGroup.add(mesh); 
+                bubbles.push(mesh);
+            }
+
+            // جسيمات البخار (Steam Particles)
+            // إنشاء خامة بخار بسيطة باستخدام Canvas
+            const canvas = document.createElement('canvas');
+            canvas.width = 32; canvas.height = 32;
+            const context = canvas.getContext('2d');
+            const gradient = context.createRadialGradient(16, 16, 0, 16, 16, 16);
+            gradient.addColorStop(0, 'rgba(255,255,255,1)');
+            gradient.addColorStop(1, 'rgba(255,255,255,0)');
+            context.fillStyle = gradient;
+            context.fillRect(0, 0, 32, 32);
+            const smokeTexture = new THREE.CanvasTexture(canvas);
+
+            const steamGeom = new THREE.PlaneGeometry(0.5, 0.5);
+            const steamMat = new THREE.MeshBasicMaterial({ map: smokeTexture, transparent: true, opacity: 0, depthWrite: false });
+            
+            for(let i=0; i<30; i++) {
+                let p = new THREE.Mesh(steamGeom, steamMat);
+                p.visible = false;
+                scene.add(p);
+                steamParticles.push(p);
+            }
+        }
+
+        function initTitration3D() {
+            const container = document.getElementById('titration-canvas');
+            
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+            camera.position.set(0, 3, 14);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            // إعدادات إضاءة سينمائية أقوى
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.3;
+            container.appendChild(renderer.domElement);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.target.set(0, 0.5, 0);
+
+            // إضاءة الاستوديو
+            scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+            const mainLight = new THREE.DirectionalLight(0xffffff, 1.5); mainLight.position.set(5, 10, 8); scene.add(mainLight);
+            const fillLight = new THREE.DirectionalLight(0xaabbff, 0.8); fillLight.position.set(-8, 5, -5); scene.add(fillLight);
+            
+            // خامة الزجاج المتقدمة جداً (تتفاعل مع الإضاءة كالزجاج الحقيقي)
+            const glassMaterial = new THREE.MeshPhysicalMaterial({ 
+                color: 0xffffff, 
+                metalness: 0.1, 
+                roughness: 0.0, 
+                transmission: 1.0, 
+                ior: 1.5, 
+                thickness: 0.2, 
+                clearcoat: 1.0, // لمعة إضافية للزجاج
+                clearcoatRoughness: 0.1,
+                transparent: true, 
+                side: THREE.DoubleSide 
+            });
+
+            // خامة السائل الحجمية (Volumetric Liquid)
+            const liquidMat = new THREE.MeshPhysicalMaterial({ 
+                color: 0xffffff, 
+                metalness: 0.0, 
+                roughness: 0.1, 
+                transmission: 0.9, 
+                ior: 1.33, 
+                thickness: 2.0, 
+                transparent: true 
+            });
+
+            // بناء المجسمات
+            const hotPlateGroup = new THREE.Group();
+            const baseGeom = new THREE.BoxGeometry(4.5, 1.2, 4.5);
+            const baseMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.8 });
+            const base = new THREE.Mesh(baseGeom, baseMat); base.position.y = -0.6; hotPlateGroup.add(base);
+
+            const topPlateGeom = new THREE.BoxGeometry(4, 0.15, 4);
+            const topPlateMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 });
+            const topPlate = new THREE.Mesh(topPlateGeom, topPlateMat); topPlate.position.y = 0.075; hotPlateGroup.add(topPlate);
+
+            const panelGeom = new THREE.BoxGeometry(4.2, 0.8, 0.1);
+            const panelMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.6 });
+            const panel = new THREE.Mesh(panelGeom, panelMat); panel.position.set(0, -0.6, 2.25); hotPlateGroup.add(panel);
+
+            const knobGeom = new THREE.CylinderGeometry(0.25, 0.25, 0.3, 32);
+            const knobMat = new THREE.MeshStandardMaterial({ color: 0xcbd5e1, metalness: 0.3, roughness: 0.4 });
+            hotPlateKnobHeat = new THREE.Mesh(knobGeom, knobMat); hotPlateKnobHeat.rotation.x = Math.PI / 2; hotPlateKnobHeat.position.set(-1.2, -0.6, 2.35); hotPlateGroup.add(hotPlateKnobHeat);
+            hotPlateKnobStir = new THREE.Mesh(knobGeom, knobMat); hotPlateKnobStir.rotation.x = Math.PI / 2; hotPlateKnobStir.position.set(1.2, -0.6, 2.35); hotPlateGroup.add(hotPlateKnobStir);
+
+            hotPlateLight = new THREE.MeshBasicMaterial({ color: 0x333333 }); 
+            const indicatorLight = new THREE.Mesh(new THREE.SphereGeometry(0.08, 16, 16), hotPlateLight); indicatorLight.position.set(0, -0.4, 2.3); hotPlateGroup.add(indicatorLight);
+
+            hotPlateGroup.position.y = -2; 
+            scene.add(hotPlateGroup);
+
+            // بناء الدورق المخروطي
+            flaskGroup = new THREE.Group();
+            flaskGroup.position.y = -1.85; 
+            
+            const flaskPoints = [];
+            flaskPoints.push(new THREE.Vector2(0.001, 0));       
+            flaskPoints.push(new THREE.Vector2(1.6, 0));         
+            flaskPoints.push(new THREE.Vector2(1.8, 0.15));      
+            flaskPoints.push(new THREE.Vector2(0.5, 2.2));       
+            flaskPoints.push(new THREE.Vector2(0.42, 2.4));      
+            flaskPoints.push(new THREE.Vector2(0.42, 3.4));      
+            flaskPoints.push(new THREE.Vector2(0.52, 3.5));      
+            flaskPoints.push(new THREE.Vector2(0.52, 3.55));     
+            flaskPoints.push(new THREE.Vector2(0.42, 3.55));     
+            
+            const flaskGeom = new THREE.LatheGeometry(new THREE.SplineCurve(flaskPoints).getPoints(50), 64);
+            flask = new THREE.Mesh(flaskGeom, glassMaterial);
+            flask.renderOrder = 2; 
+            flaskGroup.add(flask);
+
+            flaskLiquid = new THREE.Mesh(new THREE.BufferGeometry(), liquidMat);
+            flaskLiquid.renderOrder = 1;
+            flaskGroup.add(flaskLiquid);
+            
+            updateLiquidGeometry(); 
+            initBoilingEffects(); 
+
+            scene.add(flaskGroup);
+
+            const fleaMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
+            stirrerFlea = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.6, 16), fleaMat);
+            stirrerFlea.rotation.z = Math.PI / 2;
+            stirrerFlea.position.y = -1.75; 
+            scene.add(stirrerFlea);
+
+            thermoGroup = new THREE.Group();
+            const thermoGeom = new THREE.CylinderGeometry(0.06, 0.06, 5, 16);
+            thermoGeom.translate(0, 2.5, 0);
+            thermoGroup.add(new THREE.Mesh(thermoGeom, glassMaterial));
+            const redLiquidGeom = new THREE.CylinderGeometry(0.02, 0.02, 1.5, 16);
+            redLiquidGeom.translate(0, 0.75, 0);
+            thermoGroup.add(new THREE.Mesh(redLiquidGeom, new THREE.MeshBasicMaterial({ color: 0xdc2626 })));
+            thermoGroup.position.set(0.6, -1.75, 0); 
+            thermoGroup.rotation.z = 0.15;
+            scene.add(thermoGroup);
+
+            burette = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 5, 32), glassMaterial);
+            burette.position.y = 4.5;
+            burette.renderOrder = 2;
+            scene.add(burette);
+
+            stopcock = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.7, 16), new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.5 }));
+            stopcock.rotation.z = Math.PI / 2;
+            stopcock.position.set(0, 2.2, 0);
+            scene.add(stopcock);
+
+            // ربط الأحداث
+            document.getElementById('flask-size').addEventListener('change', (e) => {
+                flaskScale = parseFloat(e.target.value);
+                flaskGroup.scale.set(flaskScale, flaskScale, flaskScale);
+                thermoGroup.position.x = 0.6 * flaskScale;
+                updateLiquidGeometry();
+            });
+
+            document.getElementById('indicator-type').addEventListener('change', (e) => {
+                currentIndicator = e.target.value;
+                resetExperiment(); 
+            });
+
+            document.getElementById('flow-rate').addEventListener('input', (e) => {
+                flowRate = parseInt(e.target.value);
+                stopcock.rotation.x = (flowRate / 100) * (Math.PI / 2);
+                const flowVal = document.getElementById('flow-value');
+                if(flowRate === 0) { flowVal.innerText = 'مغلق'; flowVal.className = 'text-xs text-slate-400 font-mono'; }
+                else if(flowRate < 50) { flowVal.innerText = 'قطرات'; flowVal.className = 'text-xs text-blue-400 font-mono'; }
+                else { flowVal.innerText = 'تدفق مستمر'; flowVal.className = 'text-xs text-orange-400 font-mono'; }
+            });
+
+            document.getElementById('target-temp').addEventListener('input', (e) => {
+                targetTemp = parseInt(e.target.value);
+                document.getElementById('target-temp-val').innerText = targetTemp + '°C';
+                hotPlateKnobHeat.rotation.y = ((targetTemp - 25) / 125) * Math.PI;
+                updateHotPlateLight();
+            });
+
+            document.getElementById('stir-speed').addEventListener('input', (e) => {
+                stirSpeed = parseInt(e.target.value);
+                document.getElementById('stir-val').innerText = (stirSpeed * 10) + ' RPM';
+                hotPlateKnobStir.rotation.y = (stirSpeed / 100) * Math.PI;
+                updateHotPlateLight();
+            });
+
+            window.addEventListener('resize', () => {
+                if(document.getElementById('titration-canvas').clientWidth > 0) {
+                    camera.aspect = container.clientWidth / container.clientHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(container.clientWidth, container.clientHeight);
+                }
+            }, false);
+
+            resetExperiment();
+            animate();
+        }
+
+        function updateHotPlateLight() {
+            const uiLight = document.getElementById('plate-light-ui');
+            if (stirSpeed > 0 || targetTemp > 25) {
+                hotPlateLight.color.setHex(0xf97316); 
+                uiLight.classList.replace('text-slate-600', 'text-orange-500');
+                uiLight.classList.add('drop-shadow-[0_0_5px_rgba(249,115,22,0.8)]');
+            } else {
+                hotPlateLight.color.setHex(0x333333); 
+                uiLight.classList.replace('text-orange-500', 'text-slate-600');
+                uiLight.classList.remove('drop-shadow-[0_0_5px_rgba(249,115,22,0.8)]');
+            }
+        }
+
+        window.resetExperiment = function() {
+            isShattered = false;
+            if(flask) flask.visible = true;
+            document.getElementById('warning-msg').classList.add('hidden');
+            
+            // إزالة الشظايا إن وجدت
+            shards.forEach(s => flaskGroup.remove(s));
+            shards = [];
+
+            currentPh = (currentIndicator === 'mo') ? 2.0 : 7.0; 
+            currentLiquidLevel = baseLiquidLevel;
+            updateLiquidGeometry(); 
+            
+            // ضبط لون السائل (Color and Attenuation)
+            let col = new THREE.Color(indicatorsData[currentIndicator].acidColor);
+            flaskLiquid.material.color.copy(col);
+            
+            targetTemp = 25.0;
+            currentTemp = 25.0;
+            document.getElementById('target-temp').value = 25;
+            document.getElementById('target-temp-val').innerText = '25°C';
+            hotPlateKnobHeat.rotation.y = 0;
+
+            document.getElementById('ph-display').innerText = currentPh.toFixed(2);
+            document.getElementById('flow-rate').value = 0;
+            flowRate = 0;
+            stopcock.rotation.x = 0;
+            document.getElementById('flow-value').innerText = 'مغلق';
+            document.getElementById('flow-value').className = 'text-xs text-slate-400 font-mono';
+        };
+
+        function shatterFlask() {
+            if (isShattered) return;
+            isShattered = true;
+
+            // إخفاء الدورق والسائل
+            flask.visible = false;
+            flaskLiquid.visible = false;
+
+            // توليد الشظايا
+            const shardGeom = new THREE.TetrahedronGeometry(0.15);
+            for(let i=0; i<60; i++) {
+                let shard = new THREE.Mesh(shardGeom, flask.material);
+                
+                let y = Math.random() * 3.5;
+                let radius = 1.55 - ((1.55 - 0.45) * (y / 3.5));
+                let angle = Math.random() * Math.PI * 2;
+
+                shard.position.set(radius * Math.cos(angle), y, radius * Math.sin(angle));
+                
+                shard.userData.velocity = new THREE.Vector3(
+                    (Math.random() - 0.5) * 0.2,
+                    Math.random() * 0.15, 
+                    (Math.random() - 0.5) * 0.2
+                );
+                shard.userData.rotSpeed = new THREE.Vector3(Math.random()*0.2, Math.random()*0.2, Math.random()*0.2);
+
+                flaskGroup.add(shard);
+                shards.push(shard);
+            }
+
+            // إظهار رسالة التحذير وإيقاف التسخين
+            document.getElementById('warning-msg').classList.remove('hidden');
+            targetTemp = 25;
+            document.getElementById('target-temp').value = 25;
+            document.getElementById('target-temp-val').innerText = '25°C';
+            hotPlateKnobHeat.rotation.y = 0;
+            updateHotPlateLight();
+        }
+
+        function createDrop() {
+            const dropMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, transmission: 0.9, transparent: true });
+            const drop = new THREE.Mesh(new THREE.SphereGeometry(0.06, 16, 16), dropMat);
+            drop.position.set(0, 1.8, 0); 
+            scene.add(drop);
+            drops.push(drop);
+        }
+
+        function updatePhysics() {
+            // تحديث فيزياء الشظايا إذا انكسر الدورق
+            if (isShattered) {
+                shards.forEach(shard => {
+                    shard.position.add(shard.userData.velocity);
+                    shard.rotation.x += shard.userData.rotSpeed.x;
+                    shard.rotation.y += shard.userData.rotSpeed.y;
+                    shard.rotation.z += shard.userData.rotSpeed.z;
+
+                    shard.userData.velocity.y -= 0.008; // الجاذبية
+
+                    // الاصطدام بسطح السخان
+                    if (shard.position.y < 0.1) {
+                        shard.position.y = 0.1;
+                        shard.userData.velocity.y *= -0.3; 
+                        shard.userData.velocity.x *= 0.8; 
+                        shard.userData.velocity.z *= 0.8; 
+                    }
+                });
+                return; // إيقاف باقي الفيزياء في حالة الكسر
+            }
+
+            // 1. الدوران والدوامة (Vortex Effect)
+            if (stirSpeed > 0) {
+                stirrerFlea.rotation.y += (stirSpeed / 100) * 1.5; 
+                flaskLiquid.rotation.y += (stirSpeed / 100) * 0.2; 
+                // محاكاة بصرية للدوامة عبر تذبذب خفيف في الحجم العمودي
+                let vortexDepth = 1 - ((stirSpeed / 100) * 0.05 * Math.sin(Date.now() * 0.01));
+                flaskLiquid.scale.y = vortexDepth;
+            } else {
+                flaskLiquid.scale.y = 1.0;
+            }
+
+            // 2. التحكم بالحرارة والتوازن الحراري
+            if (currentTemp < targetTemp) {
+                // تسخين أسرع إذا كان الدورق فارغاً
+                let heatRate = (currentLiquidLevel <= 0.01) ? 0.2 : 0.05;
+                currentTemp += heatRate; 
+            } else if (currentTemp > targetTemp + 0.1 && currentTemp > 25) {
+                currentTemp -= 0.03; 
+            }
+            document.getElementById('temp-display').innerText = currentTemp.toFixed(1);
+
+            // التحقق من كسر الدورق بسبب التسخين الجاف (أكثر من 130 درجة)
+            if (currentLiquidLevel <= 0.01 && currentTemp > 130) {
+                shatterFlask();
+            }
+
+            // 3. فيزياء الغليان والتبخر (Boiling & Evaporation)
+            let isBoiling = currentTemp >= 95 && currentLiquidLevel > 0.01; 
+            
+            // أ. تنقيص حجم السائل (التبخر)
+            if (isBoiling) {
+                let evapRate = (currentTemp - 90) * 0.00015; 
+                currentLiquidLevel -= evapRate;
+                if(currentLiquidLevel < 0) currentLiquidLevel = 0;
+                updateLiquidGeometry();
+            }
+
+            // ب. حركة فقاعات الغليان
+            bubbles.forEach(b => {
+                if(isBoiling) {
+                    if(!b.visible) {
+                        b.visible = true;
+                        let r = 1.2 * Math.random();
+                        let theta = Math.random() * Math.PI * 2;
+                        b.position.set(r * Math.cos(theta), 0.2, r * Math.sin(theta)); 
+                    }
+                    b.position.y += 0.03 + Math.random()*0.04; 
+                    b.position.x += (Math.random()-0.5)*0.03; 
+                    b.position.z += (Math.random()-0.5)*0.03;
+                    
+                    if(b.position.y > currentLiquidLevel) {
+                        b.position.y = 0.2; 
+                        let r = (1.55 - ((1.55 - 0.45) * (0.2 / 2.05))) * 0.8 * Math.random(); 
+                        let theta = Math.random() * Math.PI * 2;
+                        b.position.x = r * Math.cos(theta);
+                        b.position.z = r * Math.sin(theta);
+                    }
+                } else {
+                    b.visible = false;
+                }
+            });
+
+            // ج. البخار المتصاعد من الدورق
+            steamParticles.forEach(p => {
+                if(isBoiling) {
+                    p.visible = true;
+                    if(p.material.opacity <= 0) {
+                        // إعادة تهيئة جزيء البخار عند الفوهة
+                        p.position.set((Math.random()-0.5)*0.2, flaskGroup.position.y + 3.6, (Math.random()-0.5)*0.2);
+                        p.material.opacity = 0.4 + Math.random()*0.3;
+                        p.scale.set(1, 1, 1);
+                    }
+                    p.position.y += 0.04; // يرتفع للأعلى
+                    p.scale.x += 0.02; // يتمدد
+                    p.scale.y += 0.02;
+                    p.material.opacity -= 0.005; // يختفي تدريجياً
+                    
+                    // توجيه الجسيمات دائماً للكاميرا (Billboard effect)
+                    p.lookAt(camera.position);
+                } else {
+                    p.material.opacity -= 0.05;
+                    if(p.material.opacity <= 0) p.visible = false;
+                }
+            });
+
+            // 4. نزول القطرات
+            if (flowRate > 0 && Math.random() < (flowRate / 100)) {
+                createDrop();
+            }
+
+            // 5. التفاعل والامتلاء
+            for (let i = drops.length - 1; i >= 0; i--) {
+                let d = drops[i];
+                d.position.y -= 0.15; 
+
+                let liquidTopY = flaskGroup.position.y + (currentLiquidLevel * flaskScale);
+
+                if (d.position.y < liquidTopY) {
+                    scene.remove(d);
+                    drops.splice(i, 1);
+
+                    if (currentLiquidLevel < 2.0) {
+                        currentLiquidLevel += 0.002;
+                        updateLiquidGeometry(); 
+                    }
+
+                    let stirFactor = (stirSpeed > 0) ? 1 : 0.1;
+                    let tempFactor = 1 + ((currentTemp - 25) / 100); 
+                    
+                    currentPh += 0.01 * stirFactor * tempFactor;
+                    if (currentPh > 14) currentPh = 14;
+                    document.getElementById('ph-display').innerText = currentPh.toFixed(2);
+                    
+                    let indicator = indicatorsData[currentIndicator];
+                    if (currentPh > indicator.transitionPh) {
+                        let colorLerp = Math.min((currentPh - indicator.transitionPh) / 2, 1);
+                        let targetColor = new THREE.Color(indicator.acidColor).lerp(new THREE.Color(indicator.baseColor), colorLerp);
+                        
+                        flaskLiquid.material.color.copy(targetColor);
+                    }
+                }
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            updatePhysics();
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+    </script>
+</body>
+</html>
+
